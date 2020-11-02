@@ -7,29 +7,50 @@ const connect = mongoose.connect(url);
 
 connect.then((db) => {
 
-    console.log('Connected correctly to server');
+	console.log('Connected correctly to server');
 
-    var newDish = Dishes({
-        name: 'Uthappizza',
-        description: 'test'
-    });
+	Dishes.create({
+		name: 'Uthapizza',
+		description: 'Test'
+	})
+		.then((dish) => {
+			// var newDish = Dishes({
+			//     name: 'Uthappizza',
+			//     description: 'test'
+			// });
 
-    newDish.save()
-        .then((dish) => {
-            console.log(dish);
+			// newDish.save()
+			console.log(dish);
 
-            return Dishes.find({});
-        })
-        .then((dishes) => {
-            console.log(dishes);
+			return Dishes.findByIdAndUpdate(dish._id, {
+				$set: { description: 'Updated test' }
+			}, {
+				new: true
+			})
+				.exec();
+		})
 
-            return Dishes.remove({});
-        })
-        .then(() => {
-            return mongoose.connection.close();
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+		.then((dish) => {
+			console.log(dish);
+
+			dish.comments.push({
+				rating: 5,
+				comment: 'I\'m getting a sinking feeling!',
+				author: 'Leonardo di Carpaccio'
+			});
+
+			return dish.save();
+		})
+
+		.then((dish) => {
+			console.log(dish);
+			return Dishes.remove({});
+		})
+		.then(() => {
+			return mongoose.connection.close();
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 
 });
